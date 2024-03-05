@@ -1,0 +1,128 @@
+**FIXME**
+component Z3 {
+    type Relation;
+}
+*********
+
+component Virt {
+    let <<has affinity with>> : Z3.Relation.Equivalence;
+    let <<has antiaffinity with>> : Z3.Relation.Symmetric;
+    let <<can have affinity with>> : Z3.Relation.Equivalence;
+    let <<can have antiaffinity with>> : Z3.Relation.Symmetric;
+}
+
+component Node {
+    let virts : Virt*;
+}
+
+component Group {
+    let nodes : Node*;
+    let virts : Virt*;
+    let fallbacks : Boolean;
+    let is_restricted : Boolean;
+
+    for all (node : Node, virt : Virt)
+    {
+        ** Physical membership
+        (nodes <<has>> node and virts <<has>> virt) => node.virts <<can have>> virt;
+
+        ** Restriction
+        (nodes !<<has>> node and virts <<has>> virt and is_restricted) => node.virts !<<can have>> virt;
+    };
+}
+
+component Cluster {
+    let nodes : Node*;
+    let groups : Group*;
+
+    for all (group : Group, virt : Virt)
+    {
+        (groups <<has>> group and group.virts <<has>> virt) =>
+            exists (node : Node)
+            {
+                 nodes <<has>> node;
+                 node.virts <<has>> virt;
+            };
+
+        ** Non-restriction
+        for all (node : Node)
+        {
+            (groups <<has>> group and nodes <<has>> node and group.virts <<has>> virt and !group.is_restricted) => node.virts <<can have>> virt;
+        };
+    };
+}
+
+** Node affinity
+for all (node_1 : Node, node_2 : Node, virt_1 : Virt, virt_2 : Virt)
+{
+    (virt_1 != virt_2 and node_1.virts <<can have>> virt_1 and node_2.virts <<can have>> virt_2 and virt_1 <<has affinity with>> virt_2) => (node_1 = node_2);
+    (node_1.virts <<has>> virt_1 and node_2.virts <<has>> virt_2 and virt_1 <<can have affinity with>> virt_2) => (node_1 = node_2);
+};
+
+** Node antiaffinity
+for all (node_1 : Node, node_2 : Node, virt_1 : Virt, virt_2 : Virt)
+{
+    (node_1.virts <<can have>> virt_1 and node_2.virts <<can have>> virt_2 and virt_1 <<has antiaffinity with>> virt_2) => (node_1 != node_2);
+    (node_1.virts <<has>> virt_1 and node_2.virts <<has>> virt_2 and virt_1 <<can have antiaffinity with>> virt_2) => (node_1 != node_2);
+};
+
+let node0 = Node();
+let node1 = Node();
+let node2 = Node();
+let node3 = Node();
+let node4 = Node();
+let node5 = Node();
+let node6 = Node();
+assert (node0 != node1);
+assert (node0 != node2);
+assert (node0 != node3);
+assert (node0 != node4);
+assert (node0 != node5);
+assert (node0 != node6);
+assert (node1 != node2);
+assert (node1 != node3);
+assert (node1 != node4);
+assert (node1 != node5);
+assert (node1 != node6);
+assert (node2 != node3);
+assert (node2 != node4);
+assert (node2 != node5);
+assert (node2 != node6);
+assert (node3 != node4);
+assert (node3 != node5);
+assert (node3 != node6);
+assert (node4 != node5);
+assert (node4 != node6);
+assert (node5 != node6);
+let virt0 = Virt();
+let virt1 = Virt();
+let virt2 = Virt();
+let virt3 = Virt();
+let virt4 = Virt();
+let virt5 = Virt();
+let virt6 = Virt();
+let virt7 = Virt();
+let virt8 = Virt();
+let virt9 = Virt();
+let virt10 = Virt();
+let virt11 = Virt();
+let virt12 = Virt();
+let virt13 = Virt();
+let virt14 = Virt();
+let virt15 = Virt();
+let virt16 = Virt();
+let virt17 = Virt();
+let virt18 = Virt();
+let virt19 = Virt();
+let virt20 = Virt();
+let virt21 = Virt();
+let virt22 = Virt();
+let virt23 = Virt();
+let virt24 = Virt();
+let virt25 = Virt();
+let virt26 = Virt();
+let virt27 = Virt();
+let group0 = Group { nodes <- ([node0; node1; node3; node4; node5; node6]:Node*); virts <- ([virt0; virt1; virt2; virt3; virt5; virt6; virt10; virt12; virt14; virt15; virt18; virt19; virt20; virt21; virt24; virt25; virt26]:Virt*); is_restricted <- true; };
+let group1 = Group { nodes <- ([node0; node2; node3; node5; node6]:Node*); virts <- ([virt4; virt7; virt8; virt9; virt11; virt13; virt16; virt17; virt22; virt23; virt27]:Virt*); is_restricted <- true; };
+let cluster = Cluster { nodes <- [node0; node1; node2; node3; node4; node5; node6]; groups <- [group0; group1]; };
+assert(virt18 <<can have antiaffinity with>> virt21);

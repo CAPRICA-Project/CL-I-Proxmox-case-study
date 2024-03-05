@@ -1,0 +1,297 @@
+**FIXME**
+component Z3 {
+    type Relation;
+}
+*********
+
+component Virt {
+    let <<has affinity with>> : Z3.Relation.Equivalence;
+    let <<has antiaffinity with>> : Z3.Relation.Symmetric;
+    let <<can have affinity with>> : Z3.Relation.Equivalence;
+    let <<can have antiaffinity with>> : Z3.Relation.Symmetric;
+}
+
+component Node {
+    let virts : Virt*;
+}
+
+component Group {
+    let nodes : Node*;
+    let virts : Virt*;
+    let fallbacks : Boolean;
+    let is_restricted : Boolean;
+
+    for all (node : Node, virt : Virt)
+    {
+        ** Physical membership
+        (nodes <<has>> node and virts <<has>> virt) => node.virts <<can have>> virt;
+
+        ** Restriction
+        (nodes !<<has>> node and virts <<has>> virt and is_restricted) => node.virts !<<can have>> virt;
+    };
+}
+
+component Cluster {
+    let nodes : Node*;
+    let groups : Group*;
+
+    for all (group : Group, virt : Virt)
+    {
+        (groups <<has>> group and group.virts <<has>> virt) =>
+            exists (node : Node)
+            {
+                 nodes <<has>> node;
+                 node.virts <<has>> virt;
+            };
+
+        ** Non-restriction
+        for all (node : Node)
+        {
+            (groups <<has>> group and nodes <<has>> node and group.virts <<has>> virt and !group.is_restricted) => node.virts <<can have>> virt;
+        };
+    };
+}
+
+** Node affinity
+for all (node_1 : Node, node_2 : Node, virt_1 : Virt, virt_2 : Virt)
+{
+    (virt_1 != virt_2 and node_1.virts <<can have>> virt_1 and node_2.virts <<can have>> virt_2 and virt_1 <<has affinity with>> virt_2) => (node_1 = node_2);
+    (node_1.virts <<has>> virt_1 and node_2.virts <<has>> virt_2 and virt_1 <<can have affinity with>> virt_2) => (node_1 = node_2);
+};
+
+** Node antiaffinity
+for all (node_1 : Node, node_2 : Node, virt_1 : Virt, virt_2 : Virt)
+{
+    (node_1.virts <<can have>> virt_1 and node_2.virts <<can have>> virt_2 and virt_1 <<has antiaffinity with>> virt_2) => (node_1 != node_2);
+    (node_1.virts <<has>> virt_1 and node_2.virts <<has>> virt_2 and virt_1 <<can have antiaffinity with>> virt_2) => (node_1 != node_2);
+};
+
+let node0 = Node();
+let node1 = Node();
+let node2 = Node();
+let node3 = Node();
+let node4 = Node();
+let node5 = Node();
+let node6 = Node();
+let node7 = Node();
+let node8 = Node();
+let node9 = Node();
+let node10 = Node();
+let node11 = Node();
+let node12 = Node();
+let node13 = Node();
+let node14 = Node();
+assert (node0 != node1);
+assert (node0 != node2);
+assert (node0 != node3);
+assert (node0 != node4);
+assert (node0 != node5);
+assert (node0 != node6);
+assert (node0 != node7);
+assert (node0 != node8);
+assert (node0 != node9);
+assert (node0 != node10);
+assert (node0 != node11);
+assert (node0 != node12);
+assert (node0 != node13);
+assert (node0 != node14);
+assert (node1 != node2);
+assert (node1 != node3);
+assert (node1 != node4);
+assert (node1 != node5);
+assert (node1 != node6);
+assert (node1 != node7);
+assert (node1 != node8);
+assert (node1 != node9);
+assert (node1 != node10);
+assert (node1 != node11);
+assert (node1 != node12);
+assert (node1 != node13);
+assert (node1 != node14);
+assert (node2 != node3);
+assert (node2 != node4);
+assert (node2 != node5);
+assert (node2 != node6);
+assert (node2 != node7);
+assert (node2 != node8);
+assert (node2 != node9);
+assert (node2 != node10);
+assert (node2 != node11);
+assert (node2 != node12);
+assert (node2 != node13);
+assert (node2 != node14);
+assert (node3 != node4);
+assert (node3 != node5);
+assert (node3 != node6);
+assert (node3 != node7);
+assert (node3 != node8);
+assert (node3 != node9);
+assert (node3 != node10);
+assert (node3 != node11);
+assert (node3 != node12);
+assert (node3 != node13);
+assert (node3 != node14);
+assert (node4 != node5);
+assert (node4 != node6);
+assert (node4 != node7);
+assert (node4 != node8);
+assert (node4 != node9);
+assert (node4 != node10);
+assert (node4 != node11);
+assert (node4 != node12);
+assert (node4 != node13);
+assert (node4 != node14);
+assert (node5 != node6);
+assert (node5 != node7);
+assert (node5 != node8);
+assert (node5 != node9);
+assert (node5 != node10);
+assert (node5 != node11);
+assert (node5 != node12);
+assert (node5 != node13);
+assert (node5 != node14);
+assert (node6 != node7);
+assert (node6 != node8);
+assert (node6 != node9);
+assert (node6 != node10);
+assert (node6 != node11);
+assert (node6 != node12);
+assert (node6 != node13);
+assert (node6 != node14);
+assert (node7 != node8);
+assert (node7 != node9);
+assert (node7 != node10);
+assert (node7 != node11);
+assert (node7 != node12);
+assert (node7 != node13);
+assert (node7 != node14);
+assert (node8 != node9);
+assert (node8 != node10);
+assert (node8 != node11);
+assert (node8 != node12);
+assert (node8 != node13);
+assert (node8 != node14);
+assert (node9 != node10);
+assert (node9 != node11);
+assert (node9 != node12);
+assert (node9 != node13);
+assert (node9 != node14);
+assert (node10 != node11);
+assert (node10 != node12);
+assert (node10 != node13);
+assert (node10 != node14);
+assert (node11 != node12);
+assert (node11 != node13);
+assert (node11 != node14);
+assert (node12 != node13);
+assert (node12 != node14);
+assert (node13 != node14);
+let virt0 = Virt();
+let virt1 = Virt();
+let virt2 = Virt();
+let virt3 = Virt();
+let virt4 = Virt();
+let virt5 = Virt();
+let virt6 = Virt();
+let virt7 = Virt();
+let virt8 = Virt();
+let virt9 = Virt();
+let virt10 = Virt();
+let virt11 = Virt();
+let virt12 = Virt();
+let virt13 = Virt();
+let virt14 = Virt();
+let virt15 = Virt();
+let virt16 = Virt();
+let virt17 = Virt();
+let virt18 = Virt();
+let virt19 = Virt();
+let virt20 = Virt();
+let virt21 = Virt();
+let virt22 = Virt();
+let virt23 = Virt();
+let virt24 = Virt();
+let virt25 = Virt();
+let virt26 = Virt();
+let virt27 = Virt();
+let virt28 = Virt();
+let virt29 = Virt();
+let virt30 = Virt();
+let virt31 = Virt();
+let virt32 = Virt();
+let virt33 = Virt();
+let virt34 = Virt();
+let virt35 = Virt();
+let virt36 = Virt();
+let virt37 = Virt();
+let virt38 = Virt();
+let virt39 = Virt();
+let virt40 = Virt();
+let virt41 = Virt();
+let virt42 = Virt();
+let virt43 = Virt();
+let virt44 = Virt();
+let virt45 = Virt();
+let virt46 = Virt();
+let virt47 = Virt();
+let virt48 = Virt();
+let virt49 = Virt();
+let virt50 = Virt();
+let virt51 = Virt();
+let virt52 = Virt();
+let virt53 = Virt();
+let virt54 = Virt();
+let virt55 = Virt();
+let virt56 = Virt();
+let virt57 = Virt();
+let virt58 = Virt();
+let virt59 = Virt();
+let group0 = Group { nodes <- ([node0; node1; node2; node3; node4; node5; node6; node7; node8; node9; node10; node11; node12; node13; node14]:Node*); virts <- ([virt0; virt1; virt2; virt3; virt4; virt5; virt6; virt7; virt8; virt9; virt10; virt11; virt12; virt13; virt14; virt15; virt16; virt17; virt18; virt19; virt20; virt21; virt22; virt23; virt24; virt25; virt26; virt27; virt28; virt29; virt30; virt31; virt32; virt33; virt34; virt35; virt36; virt37; virt38; virt39; virt40; virt41; virt42; virt43; virt44; virt45; virt46; virt47; virt48; virt49; virt50; virt51; virt52; virt53; virt54; virt55; virt56; virt57; virt58; virt59]:Virt*); is_restricted <- true; };
+let cluster = Cluster { nodes <- [node0; node1; node2; node3; node4; node5; node6; node7; node8; node9; node10; node11; node12; node13; node14]; groups <- [group0]; };
+assert(virt35 <<has affinity with>> virt43);
+assert(virt9 <<has affinity with>> virt17);
+assert(virt3 <<has affinity with>> virt24);
+assert(virt6 <<has affinity with>> virt13);
+assert(virt33 <<can have antiaffinity with>> virt57);
+assert(virt3 <<can have antiaffinity with>> virt46);
+assert(virt27 <<has affinity with>> virt41);
+assert(virt8 <<has affinity with>> virt48);
+assert(virt4 <<can have antiaffinity with>> virt57);
+assert(virt21 <<can have affinity with>> virt41);
+assert(virt8 <<can have antiaffinity with>> virt52);
+assert(virt15 <<has antiaffinity with>> virt31);
+assert(virt6 <<can have antiaffinity with>> virt35);
+assert(virt27 <<can have affinity with>> virt56);
+assert(virt4 <<can have affinity with>> virt35);
+assert(virt32 <<can have antiaffinity with>> virt58);
+assert(virt1 <<can have antiaffinity with>> virt56);
+assert(virt10 <<can have antiaffinity with>> virt44);
+assert(virt20 <<can have antiaffinity with>> virt23);
+assert(virt5 <<has antiaffinity with>> virt26);
+assert(virt38 <<can have affinity with>> virt41);
+assert(virt17 <<has affinity with>> virt29);
+assert(virt31 <<can have antiaffinity with>> virt36);
+assert(virt13 <<can have antiaffinity with>> virt55);
+assert(virt45 <<has affinity with>> virt49);
+assert(virt28 <<can have antiaffinity with>> virt50);
+assert(virt7 <<can have antiaffinity with>> virt25);
+assert(virt27 <<can have antiaffinity with>> virt37);
+assert(virt13 <<has affinity with>> virt30);
+assert(virt8 <<can have antiaffinity with>> virt13);
+assert(virt16 <<has antiaffinity with>> virt45);
+assert(virt18 <<can have antiaffinity with>> virt42);
+assert(virt1 <<can have antiaffinity with>> virt26);
+assert(virt0 <<has affinity with>> virt52);
+assert(virt41 <<can have antiaffinity with>> virt47);
+assert(virt14 <<has antiaffinity with>> virt38);
+assert(virt45 <<has antiaffinity with>> virt56);
+assert(virt27 <<has antiaffinity with>> virt34);
+assert(virt8 <<has affinity with>> virt10);
+assert(virt3 <<has affinity with>> virt7);
+assert(virt40 <<can have affinity with>> virt47);
+assert(virt32 <<can have antiaffinity with>> virt33);
+assert(virt36 <<has affinity with>> virt37);
+assert(virt20 <<has affinity with>> virt33);
+assert(virt20 <<can have antiaffinity with>> virt39);
+assert(virt22 <<can have antiaffinity with>> virt50);
+assert(virt26 <<can have antiaffinity with>> virt27);
